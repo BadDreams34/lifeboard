@@ -10,6 +10,15 @@ body {
     position: relative;
 }
 
+canvas {
+    border: 2px solid red;
+    background:
+        linear-gradient(#A4AAB1 0px 2px, #0000 2px 12px) 0 0 / 1px 15px,
+        linear-gradient(90deg, #A4AAB1 0px 2px, white 2px 12px) 0 0 / 15px 15px;
+    width: 97vw;
+    height: 87vh;
+}
+
 #toolbox {
     position: fixed;
     left: 10vw;
@@ -25,14 +34,14 @@ body {
     position: fixed;
     left: 6px;
     right: 2px;
-    top: 2px;
+    top: 9px;
     bottom: 2px;
     color: blue;
     border: 2px solid black;
     width: 98vw;
-    background:
-        linear-gradient(#A4AAB1 0px 2px, #0000 2px 12px) 0 0 / 1px 15px,
-        linear-gradient(90deg, #A4AAB1 0px 2px, white 2px 12px) 0 0 / 15px 15px;
+    opacity:  0.3;
     height: 87vh;
 
 }
+
+
