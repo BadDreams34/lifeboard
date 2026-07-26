@@ -17,12 +17,14 @@ canvas {
     background:
         linear-gradient(#A4AAB1 0px 2px, #0000 2px 12px) 0 0 / 1px 15px,
         linear-gradient(90deg, #A4AAB1 0px 2px, white 2px 12px) 0 0 / 15px 15px;
-    width: 125%;
-    height: 125%;
-
-
+    position: absolute;
+    top:0;
+    left:0;
 }
 
+#point_can {
+    opacity: 0;
+}
 #toolbox {
     position: fixed;
     left: 10%;
@@ -33,3 +35,6 @@ canvas {
     border: 2px solid black;
 
 }
+
+
+
