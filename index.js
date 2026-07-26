@@ -1,51 +1,86 @@
-// now how are you going to DRAW ? LOL FIRSTLY HOW IT SHOULD WORK ? 
-//
-//
-//
-//
-// firstly : a pointer which can be moved so smoothly + it can be drawing as well if pressed shift (LEAVING A TRACE! )
 
+document.addEventListener("DOMContentLoaded", function () {
+    console.log("DOM is loaded.");
+    const ROOT = document.querySelector("html");
+    const canvas = document.querySelector("#maindraw_can");
+    const ctx = canvas.getContext("2d");
+    console.log(ctx)
+    canvas.height = 1500; canvas.width = 1500;
+    const canvas_container = document.querySelector("#canvas_outline");
+    const curr_pos = {x:canvas_container.offsetWidth / 2, y:canvas_container.offsetHeight / 2}
+    // 4 directions strokes
+    function stroke_left() {
+        ctx.beginPath()
+        ctx.strokeStyle = '#36454F';
+        ctx.lineTo(curr_pos.x, curr_pos.y)
+        curr_pos.x += 4 
+        ctx.lineTo(curr_pos.x, curr_pos.y)
+        ctx.stroke()
+        ctx.closePath()
+        stopleft = requestAnimationFrame(stroke_left)
 
-// how to have a hovering pointer over the screen // basically store the current mouse position HOW ? relative to the (0,0) 
-// so make 0,0 the initial position which is total width by 2 and total height by 2 AND HOW ABOUT When 
-//
-//
-//
-// So first of all 
-//
-//
-//
-// initial position set :/
-// set current position as initial position
-// on W A S D move the current position 
-// if SHIFT is pressed : draw the line 
-// Keep a cursor DRAWING ON THE CURRENT MOUSE POSITION
-//
-//
-const root_element = document.querySelector("html");
-initial_reference_x = root_element.clientWidth;
-initial_reference_y = root_element.clientHeight;
-let ref_pos = {
-    "x": initial_reference_x,
-    "y": initial_reference_y };
-
-let curr_mouse_pos = ref_pos;
-
-
-root_element.addEventListener("keydown", onkeypress);
-
-
-function onkeypress(e) {
-    console.log("DJ")
-if (e.ctrlKey) {
-    if (e.key == 'L') {
-        console.log("ctol L ")
     }
-} else {
-    if (e.key == "L" || e.key == "l") {
-    console.log("L")
+   function stroke_down() {
+        ctx.beginPath()
+
+        ctx.strokeStyle = '#36454F';
+        ctx.lineTo(curr_pos.x, curr_pos.y)
+        curr_pos.y += 4 
+        ctx.lineTo(curr_pos.x, curr_pos.y)
+        ctx.stroke()
+        ctx.closePath()
+        requestAnimationFrame(stroke_down)
     }
-}
+function stroke_right() {
+        ctx.beginPath()
+        ctx.strokeStyle = '#36454F';
+        ctx.lineTo(curr_pos.x, curr_pos.y)
+        curr_pos.x -= 4 
+        ctx.lineTo(curr_pos.x, curr_pos.y)
+        ctx.stroke()
+        ctx.closePath()
+        requestAnimationFrame(stroke_right)
+    }
+   function stroke_up() {
+        ctx.beginPath()
+        ctx.strokeStyle ='#36454F';
+        ctx.lineTo(curr_pos.x, curr_pos.y)
+        curr_pos.y -= 4
+        ctx.lineTo(curr_pos.x, curr_pos.y)
+        ctx.stroke()
+        ctx.closePath()
+
+       requestAnimationFrame(stroke_up)
+    }
 
 
-};
+    document.addEventListener("keydown", (event)=> {
+        const keyName = event.key;
+        console.log(keyName);
+        if (keyName == "l") {
+            requestAnimationFrame(stroke_left)
+        } else if (keyName == "h") {
+           requestAnimationFrame(stroke_right)
+
+        } else if (keyName == "k") {
+
+            requestAnimationFrame(stroke_up)
+        } else if (keyName == "j") {
+            requestAnimationFrame(stroke_down)
+        }
+    })
+   // draw cursor at the current position 
+    function cursor_show() {
+        ctx.beginPath();
+        ctx.strokeStyle = '#00FF00';
+        ctx.lineWidth = 2;
+        ctx.moveTo(curr_pos.x-15,curr_pos.y);
+        ctx.lineTo(curr_pos.x+15,curr_pos.y);
+        ctx.moveTo(curr_pos.x,curr_pos.y-15);
+        ctx.lineTo(curr_pos.x,curr_pos.y+15);
+        ctx.stroke();
+        requestAnimationFrame(cursor_show)
+    }
+cursor_show();
+requestAnimationFrame(cursor_show)
+});
