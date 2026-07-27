@@ -4,33 +4,55 @@ document.addEventListener("DOMContentLoaded", function () {
     const ROOT = document.querySelector("html");
     const canvas = document.querySelector("#maindraw_can");
     const point_canvas = document.querySelector("#point_can")
-    const ptx = canvas.getContext("2d");
+    const ptx = point_canvas.getContext("2d");
     const ctx = canvas.getContext("2d");
     console.log(ctx)
     canvas.height = 1500; canvas.width = 1500;
     point_canvas.height = 1500; point_canvas.width = 1500;
-    
+    const init_pos = {x: null, y:null}
     const canvas_container = document.querySelector("#canvas_outline");
     const curr_pos = {x:canvas_container.offsetWidth / 2, y:canvas_container.offsetHeight / 2}
+    let state = "NORMAL"
+    const fin_pos = {x: null, y: null}
+    let strokes_st = [];
+    let strokes_end = [];
+    let trash_st = [];
+    let trash_end = [];
+    
+// undo feature : by pressing the U it should remove the last made line lol 
+// handle multiple insertionstions ALSO this pointer not showing along with alsong with the okay
+// also pressing i again should just draw the line
+// basically if i pressed it one more time then it should work in the insert mode
+    // BUT while insert mode is on and i pressed i again then it should not draw just BUT JUST *draw*
 
-    // insert_initial node and shading reference grey line
     function insert_mode() {
-        ptx.beginPath()
-        ptx.arc(curr_pos.x,curr_pos.y, 3.5, 0, 2 * Math.PI)
-        console.log(curr_pos.x)
-        ptx.stroke()
+        console.log(strokes_st.length)
+       ptx.clearRect(0, 0, canvas.width, canvas.height) 
+        console.log(strokes_st)
+       for (let i = 0; i < strokes_st.length; i++) {
+           ptx.beginPath()
+        console.log(`start :${strokes_st[i].x} ${strokes_st[i].y} end:${strokes_end[i].x} `)
+       ptx.moveTo(strokes_st[i].x,strokes_st[i].y)
+       ptx.lineTo(strokes_end[i].x, strokes_end[i].y)
+       ptx.stroke() 
+       }
     }
 
+    function text_mode() {
+    const text_box = document.createElement("input")
+    text_box.placeholder = "Enter Your Text Here"
+    canvas_container.appendChild(text_box)
 
+        console.log("SHOULD HAVE")
 
-
+    }
     // 4 directions strokes
     function stroke_left() {
         ctx.beginPath()
 
         ctx.strokeStyle = '#36454F';
         ctx.lineTo(curr_pos.x, curr_pos.y)
-        curr_pos.x -= 4 
+        curr_pos.x -= 14 
         ctx.lineTo(curr_pos.x, curr_pos.y)
         ctx.stroke()
         ctx.closePath()
@@ -41,7 +63,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         ctx.strokeStyle = '#36454F';
         ctx.lineTo(curr_pos.x, curr_pos.y)
-        curr_pos.y += 4 
+        curr_pos.y += 14 
          ctx.lineTo(curr_pos.x, curr_pos.y)
         ctx.stroke()
         ctx.closePath()
@@ -50,7 +72,7 @@ function stroke_right() {
         ctx.beginPath()
         ctx.strokeStyle = '#36454F';
         ctx.lineTo(curr_pos.x, curr_pos.y)
-         curr_pos.x += 4 
+         curr_pos.x += 14 
         ctx.lineTo(curr_pos.x, curr_pos.y)
         ctx.stroke()
         ctx.closePath()
@@ -59,12 +81,11 @@ function stroke_right() {
         ctx.beginPath()
         ctx.strokeStyle ='#36454F';
         ctx.lineTo(curr_pos.x, curr_pos.y)
-         curr_pos.y -= 4
+         curr_pos.y -= 14
         ctx.lineTo(curr_pos.x, curr_pos.y)
         ctx.stroke()
         ctx.closePath()
 
-       
     }
 
     const keysDown = new Set();
@@ -88,29 +109,74 @@ document.addEventListener("keyup", (event) => {
         }
         if (keysDown.has("k")) {
             stroke_up()
-        } if (keysDown.has("i")) {
-            insert_mode()
         }
-
-        requestAnimationFrame(update_draw)
+        requestAnimationFrame(update_draw);
     }
+
+// insert key press 
+document.addEventListener("keydown", (e) => {
+    if (e.key == "i" && state == "NORMAL") {
+        state = "INSERT"
+        init_pos.x = curr_pos.x;
+        init_pos.y = curr_pos.y;
+        strokes_st.push({x: curr_pos.x, y: curr_pos.y})
+    } else if (e.key == "i" && state == "INSERT") {
+        state = "NORMAL"
+        strokes_end.push({x:curr_pos.x,y:curr_pos.y})
+        insert_mode()
+    }
+    if (e.key == "t" && state != "TEXT") {
+        state = "TEXT"
+        text_mode()
+    } else if (e.key == "i" && state == "TEXT") {
+        state = "NORMAL"
+        
+    }
+
+    if (e.key == "u") {
+        trash_st.push(strokes_st.pop())
+        trash_end.push(strokes_end.pop())
+        insert_mode()
+    }
+   if (e.shiftKey && e.key.toLowerCase() === "r"){
+        strokes_st.push(trash_st.pop())
+        strokes_end.push(trash_end.pop())
+       insert_mode()
+    }
+})
+
+
+// undo button bro LOl 
 requestAnimationFrame(update_draw)
-   // draw cursor at the current position 
+   // draw cursor at the current position along with shallow insert mode line 
     function cursor_show() {
 ctx.clearRect(0, 0, canvas.width, canvas.height);
+ if (state == "INSERT") {
+        
+               ctx.beginPath()
+        ctx.strokeStyle = "grey"
+        ctx.arc(init_pos.x,init_pos.y, 1.5, 0, 2 * Math.PI)
+        ctx.arc(curr_pos.x,curr_pos.y, 1.5, 0, 2 * Math.PI)
+        ctx.stroke()
+        ctx.beginPath()
+        ctx.strokeStyle = "grey"
+        ctx.moveTo(init_pos.x,init_pos.y)
+        ctx.lineTo(curr_pos.x,curr_pos.y)
+        ctx.stroke()
+        }
         ctx.beginPath();
         ctx.lineWidth = 2.44;
         ctx.strokeStyle = '#00FF00';
         ctx.moveTo(curr_pos.x-6,curr_pos.y);
         ctx.lineTo(curr_pos.x+6,curr_pos.y);
-        console.log(curr_pos.x,curr_pos.y)
         ctx.stroke();
         ctx.beginPath();
         ctx.lineWidth = 2.44;
         ctx.moveTo(curr_pos.x,curr_pos.y-6);
         ctx.lineTo(curr_pos.x,curr_pos.y+6);
-        ctx.stroke();
+        ctx.stroke()
         requestAnimationFrame(cursor_show)
+
     }
 cursor_show();
 requestAnimationFrame(cursor_show)
