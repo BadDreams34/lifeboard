@@ -33,6 +33,7 @@ position:absolute;
     top: 0px;
     left: 0px;
    
+    background: transparent;
      background:
 
         linear-gradient(#A4AAB1 0px 2px, #0000 2px 12px) 0 0 / 1px 15px,

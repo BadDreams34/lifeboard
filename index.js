@@ -41,6 +41,10 @@ document.addEventListener("DOMContentLoaded", function () {
     function text_mode() {
     const text_box = document.createElement("input")
     text_box.placeholder = "Enter Your Text Here"
+    text_box.style.position = "absolute"
+    text_box.style.top = `${curr_pos.y}px`
+    text_box.style.left = `${curr_pos.x}px`
+        text_box.style.zIndex = "3"
     canvas_container.appendChild(text_box)
 
         console.log("SHOULD HAVE")
