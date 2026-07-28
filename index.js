@@ -1,25 +1,32 @@
 
 document.addEventListener("DOMContentLoaded", function () {
-    console.log("DOM is loaded.");
+    // elements
     const ROOT = document.querySelector("html");
     const canvas = document.querySelector("#maindraw_can");
     const point_canvas = document.querySelector("#point_can")
+
+    // canvas
     const ptx = point_canvas.getContext("2d");
     const ctx = canvas.getContext("2d");
-    console.log(ctx)
     canvas.height = 1500; canvas.width = 1500;
     point_canvas.height = 1500; point_canvas.width = 1500;
-    const init_pos = {x: null, y:null}
     const canvas_container = document.querySelector("#canvas_outline");
+
+    const init_pos = {x: null, y:null}
     const curr_pos = {x:canvas_container.offsetWidth / 2, y:canvas_container.offsetHeight / 2}
-    let state = "NORMAL"
     const fin_pos = {x: null, y: null}
+    let text_pos = {x:null, y:null}
+
+    let state = "NORMAL"
+
     let strokes_st = [];
     let strokes_end = [];
+    let texts = [] 
     let trash_st = [];
     let trash_end = [];
-    let text_pos = {x:null, y:null}
-    let texts = [] 
+
+
+
     class text {
         constructor(text_content,x,y) {
             this.x = x;
@@ -28,25 +35,21 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
     function insert_mode() {
-       console.log(strokes_st.length)
        ptx.clearRect(0, 0, canvas.width, canvas.height) 
-        console.log(strokes_st)
        for (let i = 0; i < strokes_st.length; i++) {
            ptx.beginPath()
-        console.log(`start :${strokes_st[i].x} ${strokes_st[i].y} end:${strokes_end[i].x} `)
        ptx.moveTo(strokes_st[i].x,strokes_st[i].y)
        ptx.lineTo(strokes_end[i].x, strokes_end[i].y)
        ptx.stroke() 
        for (let i = 0; i < texts.length; i++) {
            ptx.fillText(texts[i].text_content,texts[i].x, texts[i].y)
-           console.log(texts[i])
-           console.log(texts)
        }
        }
     }
     // text box this is how i m going to make this literally to be honest just make it usable with mobile 
     // save feature and 
     // my personal website and yeah ease of access
+
 
     function text_mode() {
         if (state == "TEXT") {
@@ -63,7 +66,8 @@ document.addEventListener("DOMContentLoaded", function () {
         }
         else {
             const text_box = document.querySelector("textarea")
-            ptx.font = "18px serif";
+            ptx.font = "12px serif";
+             n
             val = text_box.value
             ptx.fillText(val, text_pos.x, text_pos.y)
             text_box.remove()
@@ -71,6 +75,26 @@ document.addEventListener("DOMContentLoaded", function () {
             texts.push(text_elem)
 
         }
+    }
+    
+    function save_state() {
+        const data = {
+            strokes_st: strokes_st,
+            strokes_end: strokes_end,
+            texts: texts,
+        }
+        localStorage.setItem("data", JSON.stringify(data))
+        console.log(JSON.stringify(data))
+    }
+
+    function load_data() {
+        const data_str = localStorage.getItem("data")
+        if (!data_str) return;
+        const data = JSON.parse(data_str)
+        strokes_st = data.strokes_st
+        strokes_end = data.strokes_end
+        texts = data.texts
+        insert_mode() //redraw stuff
     }
 
     // 4 directions strokes
@@ -159,7 +183,13 @@ document.addEventListener("keydown", (e) => {
     } else if(e.key == "Enter" && state === "TEXT") {
         state = "NORMAL"
         text_mode()
-    } 
+    }
+    
+    if (e.key == "w" && state !== "TEXT") {
+        save_state()
+    } else if (e.shiftKey && e.key.toLowerCase() == "w"  && state !== "TEXT") {
+        load_data()
+    }
     
 
     if (e.key == "u") {
