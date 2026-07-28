@@ -18,15 +18,17 @@ document.addEventListener("DOMContentLoaded", function () {
     let strokes_end = [];
     let trash_st = [];
     let trash_end = [];
-    
-// undo feature : by pressing the U it should remove the last made line lol 
-// handle multiple insertionstions ALSO this pointer not showing along with alsong with the okay
-// also pressing i again should just draw the line
-// basically if i pressed it one more time then it should work in the insert mode
-    // BUT while insert mode is on and i pressed i again then it should not draw just BUT JUST *draw*
-
+    let text_pos = {x:null, y:null}
+    let texts = [] 
+    class text {
+        constructor(text_content,x,y) {
+            this.x = x;
+            this.y = y;
+            this.text_content = text_content;
+        }
+    }
     function insert_mode() {
-        console.log(strokes_st.length)
+       console.log(strokes_st.length)
        ptx.clearRect(0, 0, canvas.width, canvas.height) 
         console.log(strokes_st)
        for (let i = 0; i < strokes_st.length; i++) {
@@ -35,21 +37,42 @@ document.addEventListener("DOMContentLoaded", function () {
        ptx.moveTo(strokes_st[i].x,strokes_st[i].y)
        ptx.lineTo(strokes_end[i].x, strokes_end[i].y)
        ptx.stroke() 
+       for (let i = 0; i < texts.length; i++) {
+           ptx.fillText(texts[i].text_content,texts[i].x, texts[i].y)
+           console.log(texts[i])
+           console.log(texts)
+       }
        }
     }
+    // text box this is how i m going to make this literally to be honest just make it usable with mobile 
+    // save feature and 
+    // my personal website and yeah ease of access
 
     function text_mode() {
-    const text_box = document.createElement("input")
-    text_box.placeholder = "Enter Your Text Here"
-    text_box.style.position = "absolute"
-    text_box.style.top = `${curr_pos.y}px`
-    text_box.style.left = `${curr_pos.x}px`
-        text_box.style.zIndex = "3"
-    canvas_container.appendChild(text_box)
+        if (state == "TEXT") {
+            const text_box = document.createElement("textarea")
+            text_box.placeholder = "Enter Your Text Here"
+            text_box.style.position = "absolute"
+            text_pos.x = curr_pos.x
+            text_pos.y = curr_pos.y
+            text_box.style.top = `${text_pos.y}px`
+            text_box.style.left = `${text_pos.x}px`
+            text_box.style.zIndex = "3"
+            canvas_container.appendChild(text_box)
+            text_box.focus()
+        }
+        else {
+            const text_box = document.querySelector("textarea")
+            ptx.font = "18px serif";
+            val = text_box.value
+            ptx.fillText(val, text_pos.x, text_pos.y)
+            text_box.remove()
+            const text_elem = new text(val,text_pos.x, text_pos.y)
+            texts.push(text_elem)
 
-        console.log("SHOULD HAVE")
-
+        }
     }
+
     // 4 directions strokes
     function stroke_left() {
         ctx.beginPath()
@@ -129,13 +152,15 @@ document.addEventListener("keydown", (e) => {
         strokes_end.push({x:curr_pos.x,y:curr_pos.y})
         insert_mode()
     }
-    if (e.key == "t" && state != "TEXT") {
+    if (e.key == "t" && state !== "TEXT") {
+        e.preventDefault();
         state = "TEXT"
         text_mode()
-    } else if (e.key == "i" && state == "TEXT") {
+    } else if(e.key == "Enter" && state === "TEXT") {
         state = "NORMAL"
-        
-    }
+        text_mode()
+    } 
+    
 
     if (e.key == "u") {
         trash_st.push(strokes_st.pop())
