@@ -24,9 +24,6 @@ document.addEventListener("DOMContentLoaded", function () {
     let texts = [] 
     let trash_st = [];
     let trash_end = [];
-
-
-
     class text {
         constructor(text_content,x,y) {
             this.x = x;
@@ -34,6 +31,7 @@ document.addEventListener("DOMContentLoaded", function () {
             this.text_content = text_content;
         }
     }
+
     function insert_mode() {
        ptx.clearRect(0, 0, canvas.width, canvas.height) 
        for (let i = 0; i < strokes_st.length; i++) {
@@ -41,16 +39,11 @@ document.addEventListener("DOMContentLoaded", function () {
        ptx.moveTo(strokes_st[i].x,strokes_st[i].y)
        ptx.lineTo(strokes_end[i].x, strokes_end[i].y)
        ptx.stroke() 
-       for (let i = 0; i < texts.length; i++) {
-           ptx.fillText(texts[i].text_content,texts[i].x, texts[i].y)
+       for (let l = 0; l < texts.length; l++) {
+           ptx.fillText(texts[l].text_content,texts[l].x, texts[l].y)
        }
        }
     }
-    // text box this is how i m going to make this literally to be honest just make it usable with mobile 
-    // save feature and 
-    // my personal website and yeah ease of access
-
-
     function text_mode() {
         if (state == "TEXT") {
             const text_box = document.createElement("textarea")
@@ -62,12 +55,18 @@ document.addEventListener("DOMContentLoaded", function () {
             text_box.style.left = `${text_pos.x}px`
             text_box.style.zIndex = "3"
             canvas_container.appendChild(text_box)
+            text_box.addEventListener("keydown", (e)=> {
+             e.stopPropagation()
+                if (e.key == "Enter") {
+                    state = "NORMAL"
+                    text_mode()
+                }
+            })
             text_box.focus()
         }
         else {
             const text_box = document.querySelector("textarea")
             ptx.font = "12px serif";
-             n
             val = text_box.value
             ptx.fillText(val, text_pos.x, text_pos.y)
             text_box.remove()
@@ -76,7 +75,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
         }
     }
-    
     function save_state() {
         const data = {
             strokes_st: strokes_st,
@@ -94,7 +92,7 @@ document.addEventListener("DOMContentLoaded", function () {
         strokes_st = data.strokes_st
         strokes_end = data.strokes_end
         texts = data.texts
-        insert_mode() //redraw stuff
+        insert_mode() 
     }
 
     // 4 directions strokes
@@ -138,6 +136,47 @@ function stroke_right() {
         ctx.closePath()
 
     }
+// precision movement functions
+    function p_stroke_left() {
+        ctx.beginPath()
+
+        ctx.strokeStyle = '#36454F';
+        ctx.lineTo(curr_pos.x, curr_pos.y)
+        curr_pos.x -= 1 
+        ctx.lineTo(curr_pos.x, curr_pos.y)
+        ctx.stroke()
+        ctx.closePath()
+
+    }
+   function p_stroke_down() {
+        ctx.beginPath()
+
+        ctx.strokeStyle = '#36454F';
+        ctx.lineTo(curr_pos.x, curr_pos.y)
+        curr_pos.y += 1
+         ctx.lineTo(curr_pos.x, curr_pos.y)
+        ctx.stroke()
+        ctx.closePath()
+    }
+function p_stroke_right() {
+        ctx.beginPath()
+        ctx.strokeStyle = '#36454F';
+        ctx.lineTo(curr_pos.x, curr_pos.y)
+         curr_pos.x += 1 
+        ctx.lineTo(curr_pos.x, curr_pos.y)
+        ctx.stroke()
+        ctx.closePath()
+    }
+   function p_stroke_up() {
+        ctx.beginPath()
+        ctx.strokeStyle ='#36454F';
+        ctx.lineTo(curr_pos.x, curr_pos.y)
+         curr_pos.y -= 1
+        ctx.lineTo(curr_pos.x, curr_pos.y)
+        ctx.stroke()
+        ctx.closePath()
+
+    }
 
     const keysDown = new Set();
 
@@ -148,7 +187,22 @@ function stroke_right() {
 document.addEventListener("keyup", (event) => {
     keysDown.delete(event.key);
 });
+
     function update_draw() {
+
+if (keysDown.has("H")) {
+            p_stroke_left()
+        }
+        if (keysDown.has("L")) {
+            p_stroke_right()
+        }
+        if (keysDown.has("J")) {
+            p_stroke_down()
+        }
+        if (keysDown.has("K")) {
+            p_stroke_up()
+        }
+         
         if (keysDown.has("h")) {
             stroke_left()
         }
@@ -161,8 +215,9 @@ document.addEventListener("keyup", (event) => {
         if (keysDown.has("k")) {
             stroke_up()
         }
-        requestAnimationFrame(update_draw);
+       requestAnimationFrame(update_draw);
     }
+
 
 // insert key press 
 document.addEventListener("keydown", (e) => {
@@ -177,42 +232,36 @@ document.addEventListener("keydown", (e) => {
         insert_mode()
     }
     if (e.key == "t" && state !== "TEXT") {
+        if (state === "INSERT") {
+            e.preventDefault;
+            return;
+        }
         e.preventDefault();
         state = "TEXT"
         text_mode()
-    } else if(e.key == "Enter" && state === "TEXT") {
-        state = "NORMAL"
-        text_mode()
     }
-    
     if (e.key == "w" && state !== "TEXT") {
         save_state()
     } else if (e.shiftKey && e.key.toLowerCase() == "w"  && state !== "TEXT") {
         load_data()
     }
-    
-
-    if (e.key == "u") {
+    if (e.key == "u" && state === "NORMAL") {
         trash_st.push(strokes_st.pop())
         trash_end.push(strokes_end.pop())
         insert_mode()
     }
-   if (e.shiftKey && e.key.toLowerCase() === "r"){
+   if (e.shiftKey && e.key.toLowerCase() === "r" && state === "NORMAL"){
         strokes_st.push(trash_st.pop())
         strokes_end.push(trash_end.pop())
        insert_mode()
     }
 })
 
-
-// undo button bro LOl 
 requestAnimationFrame(update_draw)
-   // draw cursor at the current position along with shallow insert mode line 
     function cursor_show() {
 ctx.clearRect(0, 0, canvas.width, canvas.height);
  if (state == "INSERT") {
-        
-               ctx.beginPath()
+        ctx.beginPath()
         ctx.strokeStyle = "grey"
         ctx.arc(init_pos.x,init_pos.y, 1.5, 0, 2 * Math.PI)
         ctx.arc(curr_pos.x,curr_pos.y, 1.5, 0, 2 * Math.PI)
@@ -222,6 +271,7 @@ ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.moveTo(init_pos.x,init_pos.y)
         ctx.lineTo(curr_pos.x,curr_pos.y)
         ctx.stroke()
+
         }
         ctx.beginPath();
         ctx.lineWidth = 2.44;
@@ -240,7 +290,3 @@ ctx.clearRect(0, 0, canvas.width, canvas.height);
 cursor_show();
 requestAnimationFrame(cursor_show)
 });
-
-
-// i mean right now i need to take two points and then draw a good line lol AND ADD THE CURRENT MODE AS WELl  
-// so basically showing the pointer at the current position and then clearing canvas and redrawing on each change and also making a pseudo line and then literally drawing that line 
