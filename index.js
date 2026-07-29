@@ -1,6 +1,5 @@
 
 document.addEventListener("DOMContentLoaded", function () {
-    // elements
     const ROOT = document.querySelector("html");
     const canvas = document.querySelector("#maindraw_can");
     const point_canvas = document.querySelector("#point_can")
@@ -32,6 +31,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    // functions 
     function insert_mode() {
        ptx.clearRect(0, 0, canvas.width, canvas.height) 
        for (let i = 0; i < strokes_st.length; i++) {
@@ -44,7 +44,9 @@ document.addEventListener("DOMContentLoaded", function () {
        }
        }
     }
+
     function text_mode() {
+        console.log(state)
         if (state == "TEXT") {
             const text_box = document.createElement("textarea")
             text_box.placeholder = "Enter Your Text Here"
@@ -75,6 +77,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         }
     }
+
     function save_state() {
         const data = {
             strokes_st: strokes_st,
@@ -105,17 +108,17 @@ document.addEventListener("DOMContentLoaded", function () {
         ctx.lineTo(curr_pos.x, curr_pos.y)
         ctx.stroke()
         ctx.closePath()
-
     }
+
    function stroke_down() {
         ctx.beginPath()
-
         ctx.strokeStyle = '#36454F';
         ctx.lineTo(curr_pos.x, curr_pos.y)
         curr_pos.y += 14 
          ctx.lineTo(curr_pos.x, curr_pos.y)
         ctx.stroke()
         ctx.closePath()
+
     }
 function stroke_right() {
         ctx.beginPath()
@@ -180,17 +183,8 @@ function p_stroke_right() {
 
     const keysDown = new Set();
 
-    document.addEventListener("keydown", (event)=> {
-        const keyName = event.key;
-        keysDown.add(keyName)
-            })
-document.addEventListener("keyup", (event) => {
-    keysDown.delete(event.key);
-});
-
     function update_draw() {
-
-if (keysDown.has("H")) {
+ if (keysDown.has("H")) {
             p_stroke_left()
         }
         if (keysDown.has("L")) {
@@ -219,6 +213,16 @@ if (keysDown.has("H")) {
     }
 
 
+    // event listeners
+    document.addEventListener("keydown", (event)=> {
+        const keyName = event.key;
+        keysDown.add(keyName)
+            })
+    document.addEventListener("keyup", (event) => {
+    keysDown.delete(event.key);
+            });
+
+
 // insert key press 
 document.addEventListener("keydown", (e) => {
     if (e.key == "i" && state == "NORMAL") {
@@ -231,15 +235,17 @@ document.addEventListener("keydown", (e) => {
         strokes_end.push({x:curr_pos.x,y:curr_pos.y})
         insert_mode()
     }
-    if (e.key == "t" && state !== "TEXT") {
-        if (state === "INSERT") {
+    if (e.key == "t" && state !== "text") {
+        if (state === "insert") {
             e.preventDefault;
-            return;
-        }
+        } else {
         e.preventDefault();
+        
         state = "TEXT"
         text_mode()
-    }
+
+        }
+            }
     if (e.key == "w" && state !== "TEXT") {
         save_state()
     } else if (e.shiftKey && e.key.toLowerCase() == "w"  && state !== "TEXT") {
@@ -257,6 +263,136 @@ document.addEventListener("keydown", (e) => {
     }
 })
 
+    // mobile handling
+    const H_key = document.querySelector("#H_key")
+    const J_key = document.querySelector("#J_key")
+    const K_key = document.querySelector("#K_key")
+    const L_key = document.querySelector("#L_key")
+    const h_key = document.querySelector("#h_key")
+    const j_key = document.querySelector("#j_key")
+    const k_key = document.querySelector("#k_key")
+    const l_key = document.querySelector("#l_key")
+    const i_key = document.querySelector("#i_key")
+    const t_key = document.querySelector("#t_key")
+    const u_key = document.querySelector("#u_key")
+    const r_key = document.querySelector("#r_key")
+    const w_key = document.querySelector("#w_key")
+    const W_key = document.querySelector("#W_key")
+
+
+    i_key.addEventListener("pointerdown", (e)=> {
+if (state == "NORMAL") {
+        state = "INSERT"
+        init_pos.x = curr_pos.x;
+        init_pos.y = curr_pos.y;
+        strokes_st.push({x: curr_pos.x, y: curr_pos.y})
+    } else if (state == "INSERT") {
+        state = "NORMAL"
+        strokes_end.push({x:curr_pos.x,y:curr_pos.y})
+        insert_mode()
+    }
+    })
+    t_key.addEventListener("pointerdown", (e)=> {
+     if (state !== "text") {
+        if (state === "insert") {
+            e.preventDefault;
+            return;
+        }
+        e.preventDefault();
+        state = "TEXT"
+        text_mode()
+    }
+        })
+    w_key.addEventListener("pointerdown", (e)=> {
+       if (state !== "TEXT") {
+save_state()
+       }
+
+    })
+    W_key.addEventListener("pointerdown", (e)=> {
+       if (state !== "TEXT") {
+        load_data()
+       }
+    })
+
+
+    u_key.addEventListener("pointerdown", (e)=> {
+        if (state === "NORMAL") {
+        trash_st.push(strokes_st.pop())
+        trash_end.push(strokes_end.pop())
+        insert_mode()
+        }
+       })
+
+r_key.addEventListener("pointerdown", (e)=> {
+    if (state === "NORMAL") {
+        strokes_st.push(trash_st.pop())
+        strokes_end.push(trash_end.pop())
+        insert_mode()
+    }
+        })
+
+    
+    h_key.addEventListener("pointerdown", (e)=> {
+        keysDown.add("h")
+    })
+     j_key.addEventListener("pointerdown", (e)=> {
+        keysDown.add("j")
+    })
+     k_key.addEventListener("pointerdown", (e)=> {
+        keysDown.add("k")
+    })
+     l_key.addEventListener("pointerdown", (e)=> {
+        keysDown.add("l")
+    })
+
+     h_key.addEventListener("pointerup", (e)=> {
+        keysDown.delete("h")
+    })
+     j_key.addEventListener("pointerup", (e)=> {
+        keysDown.delete("j")
+    })
+     k_key.addEventListener("pointerup", (e)=> {
+        keysDown.delete("k")
+    })
+     l_key.addEventListener("pointerup", (e)=> {
+        keysDown.delete("l")
+    })
+H_key.addEventListener("pointerdown", (e)=> {
+        keysDown.add("H")
+    })
+     J_key.addEventListener("pointerdown", (e)=> {
+        keysDown.add("J")
+    })
+     K_key.addEventListener("pointerdown", (e)=> {
+        keysDown.add("K")
+    })
+     L_key.addEventListener("pointerdown", (e)=> {
+        keysDown.add("L")
+    })
+
+     H_key.addEventListener("pointerup", (e)=> {
+        keysDown.delete("H")
+    })
+     J_key.addEventListener("pointerup", (e)=> {
+        keysDown.delete("J")
+    })
+     K_key.addEventListener("pointerup", (e)=> {
+        keysDown.delete("K")
+    })
+     L_key.addEventListener("pointerup", (e)=> {
+        keysDown.delete("L")
+    })
+    
+
+
+
+
+
+
+
+    
+    
 requestAnimationFrame(update_draw)
     function cursor_show() {
 ctx.clearRect(0, 0, canvas.width, canvas.height);
