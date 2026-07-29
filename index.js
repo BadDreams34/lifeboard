@@ -1,5 +1,6 @@
 
 document.addEventListener("DOMContentLoaded", function () {
+    console.log("WE ROCKED")
     // elements
     const ROOT = document.querySelector("html");
     const canvas = document.querySelector("#maindraw_can");
