@@ -104,7 +104,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         ctx.strokeStyle = '#36454F';
         ctx.lineTo(curr_pos.x, curr_pos.y)
-        curr_pos.x -= 14 
+        curr_pos.x -= 5
         ctx.lineTo(curr_pos.x, curr_pos.y)
         ctx.stroke()
         ctx.closePath()
@@ -114,7 +114,7 @@ document.addEventListener("DOMContentLoaded", function () {
         ctx.beginPath()
         ctx.strokeStyle = '#36454F';
         ctx.lineTo(curr_pos.x, curr_pos.y)
-        curr_pos.y += 14 
+        curr_pos.y += 5 
          ctx.lineTo(curr_pos.x, curr_pos.y)
         ctx.stroke()
         ctx.closePath()
@@ -124,7 +124,7 @@ function stroke_right() {
         ctx.beginPath()
         ctx.strokeStyle = '#36454F';
         ctx.lineTo(curr_pos.x, curr_pos.y)
-         curr_pos.x += 14 
+         curr_pos.x += 5 
         ctx.lineTo(curr_pos.x, curr_pos.y)
         ctx.stroke()
         ctx.closePath()
@@ -133,7 +133,7 @@ function stroke_right() {
         ctx.beginPath()
         ctx.strokeStyle ='#36454F';
         ctx.lineTo(curr_pos.x, curr_pos.y)
-         curr_pos.y -= 14
+         curr_pos.y -= 5 
         ctx.lineTo(curr_pos.x, curr_pos.y)
         ctx.stroke()
         ctx.closePath()
