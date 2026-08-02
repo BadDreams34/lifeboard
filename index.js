@@ -1,4 +1,3 @@
-
 document.addEventListener("DOMContentLoaded", function () {
     const ROOT = document.querySelector("html");
     const canvas = document.querySelector("#maindraw_can");
@@ -8,9 +7,22 @@ document.addEventListener("DOMContentLoaded", function () {
     // canvas
     const ptx = point_canvas.getContext("2d");
     const ctx = canvas.getContext("2d");
-    canvas.height = 1500; canvas.width = 1500;
-    point_canvas.height = 1500; point_canvas.width = 1500;
     const canvas_container = document.querySelector("#canvas_outline");
+    // fixing blurry canvas
+    const size = 1500
+    canvas.style.width = `${size}px`
+    canvas.style.height = `${size}px`
+    const scale = window.devicePixelRatio
+    canvas.width = Math.floor(size * scale);
+    canvas.height = Math.floor(size * scale);
+    point_canvas.style.width = `${size}px`
+    point_canvas.style.height = `${size}px`
+    point_canvas.width = Math.floor(size * scale);
+    point_canvas.height = Math.floor(size * scale);
+    ctx.scale(scale, scale);
+    ptx.scale(scale, scale);
+
+
 
     const init_pos = {x: null, y:null}
     const curr_pos = {x:canvas_container.offsetWidth / 2, y:canvas_container.offsetHeight / 2}
@@ -32,19 +44,24 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    const line_height = 20
     // functions 
     function insert_mode() {
+    
        ptx.setTransform(1,0,0,1, 0,0) 
        ptx.clearRect(0, 0, canvas.width, canvas.height) 
-       ptx.setTransform(1,0,0,1, offset.x, offset.y) 
+ptx.setTransform(scale, 0, 0, scale, offset.x * scale, offset.y * scale);
        for (let i = 0; i < strokes_st.length; i++) {
            ptx.beginPath()
        ptx.moveTo(strokes_st[i].x,strokes_st[i].y)
        ptx.lineTo(strokes_end[i].x, strokes_end[i].y)
        ptx.stroke() 
        for (let l = 0; l < texts.length; l++) {
-           ptx.fillText(texts[l].text_content,texts[l].x, texts[l].y)
-       }
+               ptx.fillStyle = "darkseagreen" 
+               ptx.fillRect(texts[l].x, texts[l].y, ptx.measureText(texts[l].text_content).width, line_height) 
+               ptx.fillStyle = "black";
+               ptx.fillText(texts[l].text_content,texts[l].x, texts[l].y)
+       } 
        }
     }
 
@@ -58,25 +75,38 @@ document.addEventListener("DOMContentLoaded", function () {
             text_pos.y = curr_pos.y
             text_box.style.top = `${text_pos.y}px`
             text_box.style.left = `${text_pos.x}px`
+            text_box.rows = "5"
+            text_box.cols = "33"
+            text_box.wrap = "hard"
             text_box.style.zIndex = "3"
             canvas_container.appendChild(text_box)
             text_box.addEventListener("keydown", (e)=> {
-                if (e.key == "Enter") {
+                if (e.key == "Enter" && !e.shiftKey) {
                     state = "NORMAL"
                     text_mode()
                 }
             })
             text_box.focus()
         }
-
         else {
+            let line_height = 20
             const text_box = document.querySelector("textarea")
-            ptx.font = "12px serif";
+            if (!text_box) return;
+            ptx.font = "13px monospace";
+           ptx.textBaseline = "top"
+
             val = text_box.value
-            ptx.fillText(val, text_pos.x - offset.x, text_pos.y - offset.y)
+            val_lines = val.split("\n")
+            val_lines.forEach((line, index)=> {
+                const text_width = ptx.measureText(line).width
+                ptx.fillStyle = "darkseagreen"
+                ptx.fillRect(text_pos.x - offset.x ,text_pos.y - offset.y + index * line_height, text_width, line_height)
+                ptx.fillStyle = "black";
+                ptx.fillText(line, text_pos.x - offset.x ,text_pos.y - offset.y + index * line_height )
+                const text_elem = new text(line,text_pos.x - offset.x , text_pos.y - offset.y + index * line_height)
+                texts.push(text_elem)
+            })
             text_box.remove()
-            const text_elem = new text(val,text_pos.x - offset.x , text_pos.y - offset.y)
-            texts.push(text_elem)
         }
     }
 
@@ -408,12 +438,6 @@ H_key.addEventListener("pointerdown", (e)=> {
     })
 
 
-
-
-
-
-
-    
 requestAnimationFrame(update_draw)
     function cursor_show() {
 ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -428,7 +452,6 @@ ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.moveTo(init_pos.x,init_pos.y)
         ctx.lineTo(curr_pos.x,curr_pos.y)
         ctx.stroke()
-
         }
         status_tab.innerText = state
         if (state === "NORMAL") {
@@ -443,7 +466,6 @@ ctx.clearRect(0, 0, canvas.width, canvas.height);
             status_tab.style.color = "white"
             } else if (state === "MOVE") {
                 status_tab.style.backgroundColor = "darkseagreen"
-
                 status_tab.style.color = "white"
             }
         ctx.beginPath();
@@ -458,8 +480,6 @@ ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.lineTo(curr_pos.x,curr_pos.y+6);
         ctx.stroke()
         requestAnimationFrame(cursor_show)
-
     }
 cursor_show();
-requestAnimationFrame(cursor_show)
 });
