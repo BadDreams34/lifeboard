@@ -1,12 +1,12 @@
 A Vim-keybind based lightening fast drawing app, which lets you draw and type super fast.
 
 
-###Features###
+### Features ###
 - Completely Keyboard driven drawing app, allowing you to take notes without having an iPad or notebook.
 - Truly infinite canvas where you can draw without worrying about the page length.
 - Extremely Fast with panning, inserting and moving the cursor is just a key click away.
 
-###How To Use###
+### How To Use ###
 - h,j,k,l for navigation
 - i for insert mode where you can draw strokes, by defining the end point of the stroke by moving to cursor to the end position with h,j,k,l and pressing i again.
 - pressing m for "move mode" where you can pan the drawing board, press m again to exit move mode.
