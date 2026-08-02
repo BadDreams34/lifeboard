@@ -3,7 +3,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const ROOT = document.querySelector("html");
     const canvas = document.querySelector("#maindraw_can");
     const point_canvas = document.querySelector("#point_can")
-
+    const offset = {x: 0, y:0}
+    const status_tab = document.querySelector("#stat_curr")
     // canvas
     const ptx = point_canvas.getContext("2d");
     const ctx = canvas.getContext("2d");
@@ -33,7 +34,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // functions 
     function insert_mode() {
+       ptx.setTransform(1,0,0,1, 0,0) 
        ptx.clearRect(0, 0, canvas.width, canvas.height) 
+       ptx.setTransform(1,0,0,1, offset.x, offset.y) 
        for (let i = 0; i < strokes_st.length; i++) {
            ptx.beginPath()
        ptx.moveTo(strokes_st[i].x,strokes_st[i].y)
@@ -58,7 +61,6 @@ document.addEventListener("DOMContentLoaded", function () {
             text_box.style.zIndex = "3"
             canvas_container.appendChild(text_box)
             text_box.addEventListener("keydown", (e)=> {
-             e.stopPropagation()
                 if (e.key == "Enter") {
                     state = "NORMAL"
                     text_mode()
@@ -66,17 +68,18 @@ document.addEventListener("DOMContentLoaded", function () {
             })
             text_box.focus()
         }
+
         else {
             const text_box = document.querySelector("textarea")
             ptx.font = "12px serif";
             val = text_box.value
-            ptx.fillText(val, text_pos.x, text_pos.y)
+            ptx.fillText(val, text_pos.x - offset.x, text_pos.y - offset.y)
             text_box.remove()
-            const text_elem = new text(val,text_pos.x, text_pos.y)
+            const text_elem = new text(val,text_pos.x - offset.x , text_pos.y - offset.y)
             texts.push(text_elem)
-
         }
     }
+
 
     function save_state() {
         const data = {
@@ -137,8 +140,8 @@ function stroke_right() {
         ctx.lineTo(curr_pos.x, curr_pos.y)
         ctx.stroke()
         ctx.closePath()
-
     }
+
 // precision movement functions
     function p_stroke_left() {
         ctx.beginPath()
@@ -149,7 +152,6 @@ function stroke_right() {
         ctx.lineTo(curr_pos.x, curr_pos.y)
         ctx.stroke()
         ctx.closePath()
-
     }
    function p_stroke_down() {
         ctx.beginPath()
@@ -182,9 +184,15 @@ function p_stroke_right() {
     }
 
     const keysDown = new Set();
-
     function update_draw() {
- if (keysDown.has("H")) {
+       if (state === "MOVE") {
+            if (keysDown.has("h")) {move_can("l")}
+            if (keysDown.has("j")) {move_can("k")}
+            if (keysDown.has("k")) {move_can("j")}
+            if (keysDown.has("l")) {move_can("h")}
+        }
+        else if (state === "NORMAL" || state === "INSERT") {
+        if (keysDown.has("H")) {
             p_stroke_left()
         }
         if (keysDown.has("L")) {
@@ -196,7 +204,6 @@ function p_stroke_right() {
         if (keysDown.has("K")) {
             p_stroke_up()
         }
-         
         if (keysDown.has("h")) {
             stroke_left()
         }
@@ -209,7 +216,8 @@ function p_stroke_right() {
         if (keysDown.has("k")) {
             stroke_up()
         }
-       requestAnimationFrame(update_draw);
+        } 
+      requestAnimationFrame(update_draw);
     }
 
 
@@ -229,14 +237,19 @@ document.addEventListener("keydown", (e) => {
         state = "INSERT"
         init_pos.x = curr_pos.x;
         init_pos.y = curr_pos.y;
-        strokes_st.push({x: curr_pos.x, y: curr_pos.y})
+        strokes_st.push({x: curr_pos.x - offset.x, y: curr_pos.y - offset.y})
     } else if (e.key == "i" && state == "INSERT") {
         state = "NORMAL"
-        strokes_end.push({x:curr_pos.x,y:curr_pos.y})
+        strokes_end.push({x:curr_pos.x - offset.x ,y:curr_pos.y - offset.y})
         insert_mode()
     }
-    if (e.key == "t" && state !== "text") {
-        if (state === "insert") {
+    if (e.key == "m" && state === "NORMAL") {
+        state = "MOVE"
+    } else if (e.key == "m" && state === "MOVE") {
+        state = "NORMAL"
+    }
+    if (e.key == "t" && state !== "TEXT") {
+        if (state === "INSERT") {
             e.preventDefault;
         } else {
         e.preventDefault();
@@ -263,6 +276,17 @@ document.addEventListener("keydown", (e) => {
     }
 })
 
+    function move_can(key) {
+let moved = false;
+        if (key === "l") {offset.x += 10; moved = true }
+        if (key === "k") { offset.y -= 10; moved = true }
+        if (key === "j") { offset.y += 10; moved = true }
+        if (key === "h") { offset.x -= 10; moved = true }
+        if (moved) {
+            insert_mode()
+        }
+    }
+        
     // mobile handling
     const H_key = document.querySelector("#H_key")
     const J_key = document.querySelector("#J_key")
@@ -298,7 +322,7 @@ if (state == "NORMAL") {
             e.preventDefault;
             return;
         }
-        e.preventDefault();
+       e.preventDefault();
         state = "TEXT"
         text_mode()
     }
@@ -332,7 +356,6 @@ r_key.addEventListener("pointerdown", (e)=> {
     }
         })
 
-    
     h_key.addEventListener("pointerdown", (e)=> {
         keysDown.add("h")
     })
@@ -383,7 +406,6 @@ H_key.addEventListener("pointerdown", (e)=> {
      L_key.addEventListener("pointerup", (e)=> {
         keysDown.delete("L")
     })
-    
 
 
 
@@ -391,7 +413,6 @@ H_key.addEventListener("pointerdown", (e)=> {
 
 
 
-    
     
 requestAnimationFrame(update_draw)
     function cursor_show() {
@@ -409,6 +430,22 @@ ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.stroke()
 
         }
+        status_tab.innerText = state
+        if (state === "NORMAL") {
+            status_tab.style.backgroundColor = "white"
+            status_tab.style.color = "black"
+
+        }  else if (state === "INSERT") {
+            status_tab.style.backgroundColor = "darkgrey"
+            status_tab.style.color = "white"
+        } else if (state === "TEXT") {
+            status_tab.style.backgroundColor = "#007373"
+            status_tab.style.color = "white"
+            } else if (state === "MOVE") {
+                status_tab.style.backgroundColor = "darkseagreen"
+
+                status_tab.style.color = "white"
+            }
         ctx.beginPath();
         ctx.lineWidth = 2.44;
         ctx.strokeStyle = '#00FF00';
