@@ -1,5 +1,8 @@
 A Vim-keybind based lightening fast drawing app, which lets you draw and type super fast.
 
+### Access ###
+you can visit the site here :
+https://baddreams34.github.io/lifeboard/ 
 
 ### Features ###
 - Completely Keyboard driven drawing app, allowing you to take notes without having an iPad or notebook.
