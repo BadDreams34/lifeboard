@@ -20,7 +20,8 @@ https://baddreams34.github.io/lifeboard/
  - Zoom feature with the help of which you can zoom in and zoom out to get a broader picture of your board.
  - Authentication system, Cloud saving where user can access there drawing from any device.
  - Mobile Device Improvement
+ - Image Support
 
 
 ### Help and Support ###
-If you want have any suggestions, or want help, hit me up on Discord, https://discordapp.com/users/860408741936627714 
+If you want have any suggestions, or want help, hit me up on Discord https://discordapp.com/users/860408741936627714 
